@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Manual Calculator</title>
+    <style>
+        /* General Styles */
+        .calculator {
+            width: 300px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            display: inline-block;
+            vertical-align: top;
+            margin-right: 20px;
+        }
+
+        #display,
+        #generalDisplay {
+            width: 95%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 1.5em;
+            text-align: right;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 5px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.2em;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Premium Overlay */
+        .premium-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .premium-modal {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Premium Button */
+        #premiumButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        #premiumButton:hover {
+            background-color: #3e8e41;
+        }
+
+        /* Payment Form */
+        #paymentForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #paymentForm input {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 200px;
+        }
+
+        /* General Calculator Style */
+        .general-calculator {
+            background-color: #e6e6e6;
+        }
+
+        /* Premium Calculator Styles */
+        .premium-buttons {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .premium-buttons button {
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        /* Conversion Result */
+        #conversionResult {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="calculator general-calculator">
+        <h2>General Calculator</h2>
+        <input type="text" id="generalDisplay" disabled>
+        <div class="buttons">
+            <button onclick="generalClearDisplay();">C</button>
+            <button onclick="generalAppendToDisplay('/');">/</button>
+            <button onclick="generalAppendToDisplay('*');">*</button>
+            <button onclick="generalAppendToDisplay('-');">-</button>
+            <button onclick="generalAppendToDisplay('7');">7</button>
+            <button onclick="generalAppendToDisplay('8');">8</button>
+            <button onclick="generalAppendToDisplay('9');">9</button>
+            <button onclick="generalAppendToDisplay('+');">+</button>
+            <button onclick="generalAppendToDisplay('4');">4</button>
+            <button onclick="generalAppendToDisplay('5');">5</button>
+            <button onclick="generalAppendToDisplay('6');">6</button>
+            <button onclick="generalCalculate();">=</button>
+            <button onclick="generalAppendToDisplay('1');">1</button>
+            <button onclick="generalAppendToDisplay('2');">2</button>
+            <button onclick="generalAppendToDisplay('3');">3</button>
+            <button onclick="generalAppendToDisplay('0');">0</button>
+            <button onclick="generalAppendToDisplay('.');">.</button>
+        </div>
+    </div>
+
+    <div class="calculator">
+        <h2>Premium Calculator</h2>
+        <input type="text" id="display" disabled>
+        <div class="buttons premium-buttons">
+            <button onclick="clearDisplay();">C</button>
+            <button onclick="appendToDisplay('/');">/</button>
+            <button onclick="appendToDisplay('*');">*</button>
+            <button onclick="appendToDisplay('-');">-</button>
+            <button onclick="appendToDisplay('+');">+</button>
+            <button onclick="appendToDisplay('7');">7</button>
+            <button onclick="appendToDisplay('8');">8</button>
+            <button onclick="appendToDisplay('9');">9</button>
+            <button onclick="appendToDisplay('4');">4</button>
+            <button onclick="appendToDisplay('5');">5</button>
+            <button onclick="appendToDisplay('6');">6</button>
+            <button onclick="appendToDisplay('1');">1</button>
+            <button onclick="appendToDisplay('2');">2</button>
+            <button onclick="appendToDisplay('3');">3</button>
+            <button onclick="appendToDisplay('0');">0</button>
+            <button onclick="appendToDisplay('.');">.</button>
+            <button onclick="calculate();">=</button>
+            <button onclick="showFractionInput();">Frac</button>
+            <button onclick="showPercentageInput();">%</button>
+            <button onclick="showPowerInput();">x^y</button>
+            <button onclick="showSqrtInput();">√</button>
+            <button onclick="showLogInput();">log</button>
+            <button onclick="showFactorial();">!</button>
+            <button onclick="showCurrencyConverter();">Currency</button>
+        </div>
+        <button id="premiumButton" onclick="showPremiumOverlay()">Unlock Premium</button>
+        <div id="conversionResult"></div>
+    </div>
+
+    <div id="currencyInput" class="premium-overlay hidden">
+        <div class="premium-modal">
+            <h2>Currency Converter</h2>
+            <input type="number" id="amount" placeholder="Amount" required>
+            <select id="fromCurrency" required>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="PKR">PKR</option>
+            </select>
+            to
+            <select id="toCurrency" required>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="PKR">PKR</option>
+            </select>
+            <button onclick="convertCurrency()">Convert</button>
+            <button onclick="closeCurrencyConverter()">Close</button>
+            <div id="conversionResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch exchange rates from the API
+        async function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+
+            const apiKey = 'f293cc823217e5d85d082845'; // Your Fixer.io API Key here
+            const url = `https://api.apilayer.com/fixer/convert?to=${toCurrency}&from=${fromCurrency}&amount=${amount}`;
+
+            // Make the API request
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'apikey': apiKey
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const convertedAmount = data.result;
+                    document.getElementById('conversionResult').innerHTML = `${amount} ${fromCurrency} = ${convertedAmount} ${toCurrency}`;
+                } else {
+                    document.getElementById('conversionResult').innerHTML = 'Error fetching conversion rates.';
+                }
+            } catch (error) {
+                console.error("Error fetching conversion data:", error);
+                document.getElementById('conversionResult').innerHTML = 'Error fetching conversion data.';
+            }
+        }
+
+        // Close the currency converter modal
+        function closeCurrencyConverter() {
+            document.getElementById('currencyInput').classList.add('hidden');
+        }
+
+        /* General Calculator Functions */
+        let generalDisplay = document.getElementById('generalDisplay');
+
+        function generalAppendToDisplay(value) {
+            generalDisplay.value += value;
+        }
+
+        function generalClearDisplay() {
+            generalDisplay.value = '';
+        }
+
+        function generalCalculate() {
+            try {
+                generalDisplay.value = eval(generalDisplay.value);
+            } catch (e) {
+                generalDisplay.value = 'Error';
+            }
+        }
+
+        /* Premium Calculator Functions */
+        let display = document.getElementById('display');
+        
+        function appendToDisplay(value) {
+            display.value += value;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+        }
+
+        function calculate() {
+            try {
+                display.value = eval(display.value);
+            } catch (e) {
+                display.value = 'Error';
+            }
+        }
+
+        /* Show Currency Converter */
+        function showCurrencyConverter() {
+            document.getElementById('currencyInput').classList.remove('hidden');
+        }
+
+        function showPremiumOverlay() {
+            // Show payment form logic
+        }
+    </script>
+</body>
+
+</html>
